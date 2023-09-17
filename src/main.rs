@@ -22,10 +22,37 @@ fn main() -> Result<()> {
             .expect("Choose something");
 
         match selection {
-            2 => break,
-            _ => video().unwrap(),
+            0 => video().unwrap(),
+            1 => audio().unwrap(),
+            _ => break,
         };
     }
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+fn audio() -> anyhow::Result<()> {
+    let url: String = Input::new()
+        .with_prompt("Enter the url of the video")
+        .interact_text()?;
+
+    let default_location = Path::new(&home_dir().unwrap()).join("Downloads");
+    let location: String = Input::new()
+        .with_prompt("Enter the location where you want to save the video")
+        .default(default_location.to_str().unwrap().to_string())
+        .interact_text()?;
+
+    let mut command = Command::new("yt-dlp");
+
+    command
+        .current_dir(location)
+        .arg("-x")
+        .arg("--audio-format")
+        .arg("mp3")
+        .arg(url);
+
+    download(&mut command);
 
     Ok(())
 }
