@@ -9,8 +9,6 @@ use std::thread;
 use std::time::Duration;
 
 fn main() -> Result<()> {
-    dbg!(Path::new(&home_dir().unwrap()).join("Downloads"));
-
     let choices = vec!["Video", "Audio", "Exit"];
 
     loop {
