@@ -31,7 +31,6 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[allow(dead_code)]
 fn audio() -> anyhow::Result<()> {
     let url: String = Input::new()
         .with_prompt("Enter the url of the video")
