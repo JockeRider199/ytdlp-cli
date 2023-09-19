@@ -4,9 +4,11 @@ use dialoguer::theme::ColorfulTheme;
 use dialoguer::{Input, Select};
 use home::home_dir;
 use std::path::Path;
-use std::process::Command;
 use std::thread;
-use std::time::Duration;
+use std::{
+    process::{self, Command},
+    time::Duration,
+};
 
 fn main() -> Result<()> {
     let choices = vec!["Video", "Audio", "Get versions", "Exit"];
@@ -30,7 +32,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn audio() -> anyhow::Result<()> {
+fn audio() -> Result<()> {
     let url: String = Input::new()
         .with_prompt("Enter the url of the video")
         .interact_text()?;
@@ -55,7 +57,7 @@ fn audio() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn video() -> anyhow::Result<()> {
+fn video() -> Result<()> {
     let choices = vec!["360p", "480p", "720p", "1080p"];
 
     let quality = Select::with_theme(&ColorfulTheme::default())
@@ -106,7 +108,7 @@ fn download(command: &mut Command) {
     }
 
     thread::sleep(Duration::from_millis(2000));
-    std::process::Command::new("clear").status().unwrap();
+    Command::new("clear").status().unwrap();
 }
 
 #[allow(dead_code)]
