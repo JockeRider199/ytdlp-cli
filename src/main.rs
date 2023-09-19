@@ -9,7 +9,7 @@ use std::thread;
 use std::time::Duration;
 
 fn main() -> Result<()> {
-    let choices = vec!["Video", "Audio", "Exit"];
+    let choices = vec!["Video", "Audio", "Get versions", "Exit"];
 
     loop {
         let selection = Select::with_theme(&ColorfulTheme::default())
@@ -22,6 +22,7 @@ fn main() -> Result<()> {
         match selection {
             0 => video().unwrap(),
             1 => audio().unwrap(),
+            2 => show_information(),
             _ => break,
         };
     }
@@ -117,4 +118,12 @@ fn get_version() -> String {
     let out = String::from_utf8_lossy(&command.stdout);
 
     return out.trim().to_owned();
+}
+
+fn show_information() {
+    let ytdlp = format!("Ytdlp version: {}", get_version());
+    let version = format!("Program version: {}", env!("CARGO_PKG_VERSION"));
+    println!("{}\n{}\n", version, ytdlp);
+
+    process::exit(0);
 }
