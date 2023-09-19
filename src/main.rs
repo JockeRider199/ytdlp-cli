@@ -111,7 +111,6 @@ fn download(command: &mut Command) {
     Command::new("clear").status().unwrap();
 }
 
-#[allow(dead_code)]
 fn get_version() -> String {
     let command = Command::new("yt-dlp")
         .args(["--version"])
