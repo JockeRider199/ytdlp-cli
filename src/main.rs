@@ -68,30 +68,33 @@ fn bulk_download() -> Result<()> {
                 .arg("-O")
                 .arg("title")
                 .arg("--no-simulate")
-                .arg(url);
+                .arg(&url);
             let out = command.output().expect("Failed to exec process.");
 
-            out
+            (out, url)
         });
         handles.push(handle);
     }
 
     for handle in handles {
         let val = handle.join().expect("Thread panicked.");
+        let out = val.0;
+        let url = val.1;
 
-        match val.status {
+        match out.status {
             code if code.success() => {
                 println!(
                     "{}: '{}'",
                     console::style("Downloaded successfully").green().bold(),
-                    String::from_utf8_lossy(&val.stdout)
+                    String::from_utf8_lossy(&out.stdout)
                 )
             }
             _ => {
                 println!(
-                    "{}: '{}'",
+                    "{}: '{}'\n{}",
                     console::style("Failed to download").red().bold(),
-                    String::from_utf8_lossy(&val.stdout)
+                    url,
+                    String::from_utf8_lossy(&out.stderr)
                 );
             }
         }
