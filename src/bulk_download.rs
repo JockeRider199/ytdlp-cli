@@ -7,26 +7,7 @@ use std::path::Path;
 use std::process::Command;
 use std::thread;
 
-#[derive(PartialEq, Clone, Copy)]
-pub enum DownloadType {
-    Video,
-    Audio,
-}
-
-pub fn ask_dl_type() -> Result<DownloadType> {
-    let type_choices = vec!["Audio", "Video"];
-    let dl_type = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt("Which type do you want ?")
-        .items(&type_choices)
-        .default(0)
-        .interact_on_opt(&Term::stderr())?
-        .expect("Choose something");
-
-    match dl_type {
-        0 => Ok(DownloadType::Audio),
-        _ => Ok(DownloadType::Video),
-    }
-}
+use crate::DownloadType;
 
 pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
     let mut format = String::new();
