@@ -25,9 +25,7 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
         );
     }
 
-    let default_location = Path::new(&home_dir().unwrap())
-        .join("Downloads")
-        .join("tmp");
+    let default_location = Path::new(&home_dir().unwrap()).join("Downloads");
     let location: String = Input::new()
         .with_prompt("Enter the location where you want to save your downloads")
         .default(default_location.to_str().unwrap().to_string())
@@ -39,6 +37,7 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
 
     let urls: Vec<String> = urls_bulk.split(",").map(|e| e.trim().to_string()).collect();
 
+    let starting_time = std::time::Instant::now();
     let mut handles = Vec::new();
     for url in urls {
         let loc = location.clone();
@@ -68,6 +67,8 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
         handles.push(handle);
     }
 
+    println!();
+    let mut success = 0;
     for handle in handles {
         let val = handle.join().expect("Thread panicked.");
         let out = val.0;
@@ -75,6 +76,7 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
 
         match out.status {
             code if code.success() => {
+                success += 1;
                 println!(
                     "{}: '{}'",
                     console::style("Downloaded successfully").green().bold(),
@@ -91,6 +93,11 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
             }
         }
     }
+    println!(
+        "\n🚀 {} vids downloaded in {}s\n",
+        success,
+        starting_time.elapsed().as_secs_f32()
+    );
 
     Ok(())
 }
