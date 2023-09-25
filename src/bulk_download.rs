@@ -7,20 +7,48 @@ use std::path::Path;
 use std::process::Command;
 use std::thread;
 
-pub fn bulk_download() -> Result<()> {
-    let choices = vec!["360p", "480p", "720p", "1080p"];
+#[derive(PartialEq, Clone, Copy)]
+pub enum DownloadType {
+    Video,
+    Audio,
+}
 
-    let quality = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt("Which quality do you want ? (This format will be used for each video")
-        .items(&choices)
+pub fn ask_dl_type() -> Result<DownloadType> {
+    let type_choices = vec!["Audio", "Video"];
+    let dl_type = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt("Which type do you want ?")
+        .items(&type_choices)
         .default(0)
         .interact_on_opt(&Term::stderr())?
         .expect("Choose something");
-    let format = format!("best[height<={}]", choices[quality].replace("p", ""));
 
-    let default_location = Path::new(&home_dir().unwrap()).join("Downloads");
+    match dl_type {
+        0 => Ok(DownloadType::Audio),
+        _ => Ok(DownloadType::Video),
+    }
+}
+
+pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
+    let mut format = String::new();
+    if dl_type == DownloadType::Video {
+        let quality_choices = vec!["360p", "480p", "720p", "1080p"];
+        let quality = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Which quality do you want ? (This format will be used for each video)")
+            .items(&quality_choices)
+            .default(0)
+            .interact_on_opt(&Term::stderr())?
+            .expect("Choose something");
+        format = format!(
+            "best[height<={}]",
+            quality_choices[quality].replace("p", "")
+        );
+    }
+
+    let default_location = Path::new(&home_dir().unwrap())
+        .join("Downloads")
+        .join("tmp");
     let location: String = Input::new()
-        .with_prompt("Enter the location where you want to save the video")
+        .with_prompt("Enter the location where you want to save your downloads")
         .default(default_location.to_str().unwrap().to_string())
         .interact_text()?;
 
@@ -37,15 +65,21 @@ pub fn bulk_download() -> Result<()> {
 
         let handle = thread::spawn(move || {
             let mut command = Command::new("yt-dlp");
-
             command
                 .current_dir(loc)
-                .arg("-f")
-                .arg(fmt)
                 .arg("-O")
                 .arg("title")
-                .arg("--no-simulate")
-                .arg(&url);
+                .arg("--no-simulate");
+
+            match dl_type {
+                DownloadType::Video => {
+                    command.arg("-f").arg(fmt).arg(&url);
+                }
+                DownloadType::Audio => {
+                    command.arg("-x").arg("--audio-format").arg("mp3").arg(&url);
+                }
+            }
+
             let out = command.output().expect("Failed to exec process.");
 
             (out, url)
