@@ -97,7 +97,7 @@ pub fn bulk_download(dl_type: DownloadType) -> Result<()> {
                 println!(
                     "{}: '{}'",
                     console::style("Downloaded successfully").green().bold(),
-                    String::from_utf8_lossy(&out.stdout)
+                    String::from_utf8_lossy(&out.stdout).trim()
                 )
             }
             _ => {
