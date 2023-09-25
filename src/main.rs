@@ -7,7 +7,7 @@ use std::path::Path;
 use std::process::{self, Command};
 
 mod bulk_download;
-use bulk_download::bulk_download;
+use crate::bulk_download::{ask_dl_type, bulk_download};
 
 fn main() -> Result<()> {
     let choices = vec!["Video", "Audio", "MultiDownload", "Get versions", "Exit"];
@@ -23,7 +23,10 @@ fn main() -> Result<()> {
         match selection {
             0 => video().unwrap(),
             1 => audio().unwrap(),
-            2 => bulk_download().unwrap(),
+            2 => {
+                let dl_type = ask_dl_type().unwrap();
+                bulk_download(dl_type).unwrap()
+            },
             3 => show_information(),
             _ => break,
         };
