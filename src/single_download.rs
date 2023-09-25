@@ -81,6 +81,7 @@ fn video() -> Result<()> {
 }
 
 fn download(command: &mut Command, location: &str, quality: Option<&str>) {
+    let starting_time = std::time::Instant::now();
     let output = command.output();
 
     match output {
@@ -88,8 +89,9 @@ fn download(command: &mut Command, location: &str, quality: Option<&str>) {
             let out = String::from_utf8_lossy(&output.stdout);
             let informations: Vec<&str> = out.split("\n").collect();
             println!(
-                "\n{}\n\n{}\nYoutube ID: {}\nName: '{}'\nFile size: {}MB\nLocation: {}\n{}Length: {}\n",
+                "\n{} (🚀 {}s)\n\n{}\nYoutube ID: {}\nName: '{}'\nFile size: {}MB\nLocation: {}\n{}Length: {}\n",
                 console::style("Downloaded successfully").green().bold(),
+                starting_time.elapsed().as_secs_f32(),
                 console::style("Informations").bold(),
                 informations[0],
                 informations[1],
